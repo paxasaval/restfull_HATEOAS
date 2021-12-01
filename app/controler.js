@@ -50,21 +50,25 @@ var studentSchema = {
 }
 
 function getStudents(req, res) {
-    let result = [];
-    studentsList.forEach((student)=>{
-        let x = JSON.parse(JSON.stringify(studentSchema))//copia de datos de javascript no referecia
-        x.properties.pos.value = student.pos;
-        x.properties.age.value = student.age;
-        x.properties.name.value = student.name;
-        x.properties.lastName.value = student.lastName;
-        result.push(x)
+    let studentList = [];
+    studentsList.forEach((x) => {
+        let student = JSON.parse(JSON.stringify(studentSchema))//copia de datos de javascript no referecia
+        student.properties.pos.value = x.pos;
+        student.properties.age.value = x.age;
+        student.properties.name.value = x.name;
+        student.properties.lastName.value = x.lastName;
+        studentList.push({
+            student, links: [
+                { rel: "self", method: "GET", href: `http://127.0.0.1:3000/student/${x.pos}` },
+                { rel: "edit", method: "PUT", title: 'Edit Student', href: `http://127.0.0.1:3000/student/${x.pos}` },
+                { rel: "delete", method: "DELETE", title: 'Delete Student', href: `http://127.0.0.1:3000/student/${x.pos}` },
+                { rel: "/", method: "GET", href: `http://127.0.0.1:3000/students/` }
+            ]
+        })
     })
-    result.forEach((x)=>{
-        console.log(x.properties)
-    })
-    res.status(200).json({result}, [
-        { rel: "self", method: "GET", href: 'http://127.0.0.1:3000/students'},
-        { rel: "create", method: "POST", title:'Create Student', href: 'http://127.0.0.1:3000/student'}
+    res.status(200).json({ studentList }, [
+        { rel: "self", method: "GET", href: 'http://127.0.0.1:3000/students' },
+        { rel: "create", method: "POST", title: 'Create Student', href: 'http://127.0.0.1:3000/student' }
     ]);
 }
 function getStudentByPos(req, res) {
